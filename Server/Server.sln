@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "..\..\APIGenerador\Generador_System\Common\Common.csproj", "{15C8864B-D78C-40B8-A3B7-C150FAAF19D3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PeajeSimulator", "PeajeSimulator\PeajeSimulator.csproj", "{81CB4955-954D-4F55-A404-81226CAE4B62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{15C8864B-D78C-40B8-A3B7-C150FAAF19D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15C8864B-D78C-40B8-A3B7-C150FAAF19D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15C8864B-D78C-40B8-A3B7-C150FAAF19D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15C8864B-D78C-40B8-A3B7-C150FAAF19D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81CB4955-954D-4F55-A404-81226CAE4B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81CB4955-954D-4F55-A404-81226CAE4B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81CB4955-954D-4F55-A404-81226CAE4B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81CB4955-954D-4F55-A404-81226CAE4B62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {39AE0EDB-54BA-44D4-858B-3FB7CFE65AF3}
+	EndGlobalSection
+EndGlobal
