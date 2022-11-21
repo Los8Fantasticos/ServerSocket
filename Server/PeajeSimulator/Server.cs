@@ -34,6 +34,7 @@ namespace SocketServer
             _serverSocket.Listen(maxConnections);
             _serverSocket.BeginAccept(AcceptCallback, null);
             Console.WriteLine("Server setup complete");
+            Console.WriteLine("Listening for connections...");
         }
 
         private static void AcceptCallback(IAsyncResult AR)
@@ -73,8 +74,7 @@ namespace SocketServer
             }
             byte[] dataBuf = new byte[received];
             Array.Copy(_buffer, dataBuf, received);
-            string text = Encoding.ASCII.GetString(dataBuf);
-            
+
             MessageHandle.HandleMessage(_buffer, socket);
 
             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, ReceiveCallback, socket);
@@ -83,7 +83,13 @@ namespace SocketServer
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            foreach (Socket socket in _clientSockets)
+            {
+                socket.Shutdown(SocketShutdown.Both);
+                socket.Close();
+            }
+            _serverSocket.Close();
+            Console.WriteLine("Shutting down server...");
         }
 
     }

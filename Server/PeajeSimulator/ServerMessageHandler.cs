@@ -17,10 +17,12 @@ namespace SocketServer
         }
         public void SendToRabbitQueue<T>(IBaseMessage message) where T : ClientRequestNumMessage
         {
+
             var msg = (T)message;
             var msgString = msg.Message.ToString();
             _messageSender.PublishAsync<Reconocimiento, string>(msgString);
             Console.WriteLine($"Message sent to RabbitMQ: {msgString}");
+            Console.WriteLine("Waiting for a message...");
         }
        
         public static void HandleString<T>(T message) where T : StringMessage
