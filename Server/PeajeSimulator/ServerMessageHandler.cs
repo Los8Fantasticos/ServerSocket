@@ -15,7 +15,7 @@ namespace SocketServer
         {
             _messageSender = messageSender;
         }
-        public void SendToRabbitQueue<T>(IBaseMessage message, ResponseToMachine toRespond) where T : ClientRequestNumMessage
+        public void SendToRabbitQueue<T>(IBaseMessage message) where T : ClientRequestNumMessage
         {
             var msg = (T)message;
             var msgString = msg.Message.ToString();
@@ -23,7 +23,7 @@ namespace SocketServer
             Console.WriteLine($"Message sent to RabbitMQ: {msgString}");
         }
        
-        public static void HandleString<T>(T message, ResponseToMachine toRespond) where T : StringMessage
+        public static void HandleString<T>(T message) where T : StringMessage
         {
             Console.WriteLine(message.Message);
         }

@@ -5,97 +5,86 @@ using Common.Messages;
 
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace SocketServer
 {
     public class Server : MessageSender, IDisposable
     {
-        readonly Socket _serverSocket;
-        readonly IPEndPoint _localEndPoint;
+        private static Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        private static List<Socket> _clientSockets = new List<Socket>();
+        private const int BUFFER_SIZE = 2048;
+        private static byte[] _buffer = new byte[BUFFER_SIZE];
         readonly IPAddress _ipAddress;
+        readonly IPEndPoint _localEndPoint;
 
         public Server(int port, int maxConnections = 10)
         {
-            // Get Host IP Address that is used to establish a connection
-            // In this case, we get one IP address of localhost that is IP : 127.0.0.1
-            // If a host has multiple addresses, you will get a list of addresses
             IPHostEntry host = Dns.GetHostEntry("localhost");
-            _ipAddress = host.AddressList[0];
+            _ipAddress = host.AddressList[1];
             _localEndPoint = new IPEndPoint(_ipAddress, port);
+            SetupServer(maxConnections);
+        }
+        
+        public void SetupServer(int maxConnections)
+        {
+            Console.WriteLine("Setting up server...");
+            
+            _serverSocket.Bind(_localEndPoint);
+            _serverSocket.Listen(maxConnections);
+            _serverSocket.BeginAccept(AcceptCallback, null);
+            Console.WriteLine("Server setup complete");
+        }
 
+        private static void AcceptCallback(IAsyncResult AR)
+        {
+            Socket socket;
             try
             {
-                _serverSocket = new Socket(_ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                // A Socket must be associated with an endpoint using the Bind method
-                _serverSocket.Bind(_localEndPoint);
-                // Specify how many requests a Socket can listen before it gives Server busy response.
-                // We will listen 10 requests at a time
-                _serverSocket.Listen(maxConnections);
+                socket = _serverSocket.EndAccept(AR);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.ToString());
+
+                return;
             }
+            _clientSockets.Add(socket);           
+            socket.BeginReceive(_buffer, 0, BUFFER_SIZE, SocketFlags.None, ReceiveCallback, socket);
+            Console.WriteLine("Client connected");
+            _serverSocket.BeginAccept(AcceptCallback, null);
         }
-
-        public void Start()
+        
+        private static void ReceiveCallback(IAsyncResult AR)
         {
-            Console.WriteLine($"Listening for a connection at {_localEndPoint}");
-
-            while (true)
+            Socket socket = (Socket)AR.AsyncState;
+            int received;
+            try
             {
-                ReceiveConnections();
+                received = socket.EndReceive(AR);
+                
             }
-        }
-
-        public void ReceiveConnections()
-        {
-            Socket socket = _serverSocket.Accept();
-
-            Thread thread = new Thread(() =>
+            catch (SocketException)
             {
-                // Incoming data from the client.
-                byte[] bytes;
-                ByteBuffer receive;
-
-                while (socket.Connected)
-                {
-                    try
-                    {
-                        bytes = new byte[8192];
-                        int bytesRec = socket.Receive(bytes);
-                        if (bytesRec == 0)
-                        {
-                            continue;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine($"{socket.RemoteEndPoint} : {e.Message}");
-                        continue;
-                    }
-
-                    receive = new ByteBuffer(bytes);
-                    MessageHandle.HandleMessage(bytes, socket);
-                }
-
-                socket.Shutdown(SocketShutdown.Both);
+                Console.WriteLine("Client forcefully disconnected");
+                // Don't shutdown because the socket may be disposed and its disconnected anyway.
                 socket.Close();
-            });
-            thread.Start();
-        }
+                _clientSockets.Remove(socket);
+                return;
+            }
+            byte[] dataBuf = new byte[received];
+            Array.Copy(_buffer, dataBuf, received);
+            string text = Encoding.ASCII.GetString(dataBuf);
+            
+            MessageHandle.HandleMessage(_buffer, socket);
 
-        public void Send(byte[] buffer, Socket clientSocket)
-        {
-            // Send the data through the socket.
-            clientSocket.Send(buffer);
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, ReceiveCallback, socket);
         }
+    
 
         public void Dispose()
         {
-            // Release the socket.
-            _serverSocket.Shutdown(SocketShutdown.Both);
-            _serverSocket.Close();
+            throw new NotImplementedException();
         }
+
     }
 }

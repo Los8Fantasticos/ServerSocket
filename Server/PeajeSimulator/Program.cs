@@ -23,7 +23,6 @@ ServerMessageHandler serverHandler = new ServerMessageHandler(messageSender);
 MessageHandle.RegisterMessageHandler<ClientRequestNumMessage>(serverHandler.SendToRabbitQueue<ClientRequestNumMessage>);
 
 Server server = new Server(5000);
-server.Start();
-
+Console.ReadLine();
 Console.WriteLine("\n Press any key to continue...");
 Console.ReadKey();
